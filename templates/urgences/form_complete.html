@@ -1,0 +1,319 @@
+{# templates/urgences/form_complete.html #}
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Nouveau rapport des urgences{% endblock %}
+{% block page_title %}Nouveau rapport des urgences{% endblock %}
+
+{% block extra_css %}
+<style>
+    .section-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 24px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        border: 1px solid #e9ecef;
+    }
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #DC3545;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #DC3545;
+    }
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .data-table th {
+        background: #f8f9fa;
+        padding: 10px;
+        text-align: center;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+    .data-table td {
+        padding: 8px;
+        text-align: center;
+    }
+    .data-table input {
+        width: 80px;
+        text-align: center;
+        padding: 6px;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+    }
+    .dynamic-row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    .dynamic-row input, .dynamic-row select {
+        flex: 1;
+        padding: 8px 12px;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+    }
+    .btn-add {
+        background: #DC3545;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+    .btn-add:hover { background: #c82333; }
+    .btn-remove {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+    .btn-remove:hover { background: #5a6268; }
+    .form-control {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<form method="post" id="urgenceForm">
+    {% csrf_token %}
+    
+    <!-- Informations générales -->
+    <div class="section-card">
+        <h4 class="section-title"><i class="fas fa-info-circle"></i> Informations générales</h4>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Service (saisie libre)</label>
+                <input type="text" name="service_nom" class="form-control" placeholder="Ex: Service des Urgences" required>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label">Mois</label>
+                <select name="mois" class="form-control" required>
+                    <option value="1">Janvier</option>
+                    <option value="2">Février</option>
+                    <option value="3">Mars</option>
+                    <option value="4">Avril</option>
+                    <option value="5">Mai</option>
+                    <option value="6">Juin</option>
+                    <option value="7">Juillet</option>
+                    <option value="8">Août</option>
+                    <option value="9">Septembre</option>
+                    <option value="10">Octobre</option>
+                    <option value="11">Novembre</option>
+                    <option value="12">Décembre</option>
+                </select>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label">Année</label>
+                <input type="number" name="annee" class="form-control" value="2025" required>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tableau 1: Capacité d'accueil -->
+    <div class="section-card">
+        <h4 class="section-title"><i class="fas fa-bed"></i> Tableau 1 : Capacité d'accueil</h4>
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <label class="form-label">Nombre de lits</label>
+                <input type="number" name="nb_lits" class="form-control" value="0">
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label">Lits fonctionnels</label>
+                <input type="number" name="nb_lits_fonctionnels" class="form-control" value="0">
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label">Journées théoriques</label>
+                <input type="number" name="nb_journees_theoriques" class="form-control" value="0">
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label">Journées réalisées</label>
+                <input type="number" name="nb_journees_realisees" class="form-control" value="0">
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Délai moyen de prise en charge (heures)</label>
+                <input type="number" step="0.1" name="delai_moyen_pec" class="form-control" value="0">
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tableau 2: Fréquentation par tranche d'âge -->
+    <div class="section-card">
+        <h4 class="section-title"><i class="fas fa-users"></i> Tableau 2 : Fréquentation par tranche d'âge et sexe</h4>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Tranche d'âge</th>
+                        <th>Sexe</th>
+                        <th>Admis</th>
+                        <th>Observés/Hospitalisés</th>
+                        <th>Référé</th>
+                        <th>Retour domicile</th>
+                        <th>Décès</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tranche in tranches_age %}
+                        {% for sexe in sexes %}
+                        <tr>
+                            <td><strong>{{ tranche.1 }}</strong>{% if sexe.0 == 'M' %} (M){% else %} (F){% endif %}</td>
+                            <td>{{ sexe.1 }}</td>
+                            <td><input type="number" name="freq_{{ tranche.0 }}_{{ sexe.0 }}_admis" value="0" style="width:70px"></td>
+                            <td><input type="number" name="freq_{{ tranche.0 }}_{{ sexe.0 }}_observes" value="0" style="width:80px"></td>
+                            <td><input type="number" name="freq_{{ tranche.0 }}_{{ sexe.0 }}_refere" value="0" style="width:70px"></td>
+                            <td><input type="number" name="freq_{{ tranche.0 }}_{{ sexe.0 }}_retour" value="0" style="width:80px"></td>
+                            <td><input type="number" name="freq_{{ tranche.0 }}_{{ sexe.0 }}_deces" value="0" style="width:70px"></td>
+                        </tr>
+                        {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Assurances -->
+    <div class="section-card">
+        <h4 class="section-title"><i class="fas fa-shield-alt"></i> Assurances</h4>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Patients CMU</label>
+                <input type="number" name="assurance_cmu" class="form-control" value="0">
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Assurance privée</label>
+                <input type="number" name="assurance_privee" class="form-control" value="0">
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tableau 3: Morbidité -->
+    <div class="section-card">
+        <h4 class="section-title"><i class="fas fa-stethoscope"></i> Tableau 3 : Morbidité</h4>
+        <div id="morbidites-container"></div>
+        <button type="button" class="btn-add" onclick="addMorbidite()">
+            <i class="fas fa-plus"></i> Ajouter une pathologie
+        </button>
+    </div>
+    
+    <!-- Tableau 4: Causes des décès -->
+    <div class="section-card">
+        <h4 class="section-title"><i class="fas fa-skull-crossbones"></i> Tableau 4 : Causes des décès</h4>
+        <div id="deces-container"></div>
+        <button type="button" class="btn-add" onclick="addCauseDeces()">
+            <i class="fas fa-plus"></i> Ajouter une cause de décès
+        </button>
+    </div>
+    
+    <!-- Signatures -->
+    <div class="section-card">
+        <h4 class="section-title"><i class="fas fa-signature"></i> Signatures</h4>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Coordinateur - Nom</label>
+                <input type="text" name="coordinateur_nom" class="form-control">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Coordinateur - Prénom</label>
+                <input type="text" name="coordinateur_prenom" class="form-control">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Surveillant - Nom</label>
+                <input type="text" name="surveillant_nom" class="form-control">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Surveillant - Prénom</label>
+                <input type="text" name="surveillant_prenom" class="form-control">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Chef de service - Nom</label>
+                <input type="text" name="chef_service_nom" class="form-control">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Chef de service - Prénom</label>
+                <input type="text" name="chef_service_prenom" class="form-control">
+            </div>
+        </div>
+    </div>
+    
+    <!-- Observations -->
+    <div class="section-card">
+        <h4 class="section-title"><i class="fas fa-comment"></i> Observations</h4>
+        <textarea name="observations" class="form-control" rows="3"></textarea>
+    </div>
+    
+    <!-- Boutons -->
+    <div class="text-center mb-5">
+        <button type="submit" name="action" value="save_and_pdf" class="btn-chu btn-chu-primary btn-chu-lg">
+            <i class="fas fa-file-pdf"></i> Générer le rapport PDF
+        </button>
+        <a href="{% url 'urgences:list' %}" class="btn-chu btn-chu-outline btn-chu-lg">
+            <i class="fas fa-times"></i> Annuler
+        </a>
+    </div>
+</form>
+
+<script>
+// Ajouter une morbidité
+let morbiditeCount = 0;
+function addMorbidite() {
+    const container = document.getElementById('morbidites-container');
+    const uniqueId = Date.now() + morbiditeCount;
+    const html = `
+        <div class="dynamic-row" id="morbidite_${uniqueId}">
+            <select name="morbidite_tranche_${uniqueId}" class="form-control" style="flex:1">
+                {% for tranche in tranches_age %}
+                <option value="{{ tranche.0 }}">{{ tranche.1 }}</option>
+                {% endfor %}
+            </select>
+            <select name="morbidite_sexe_${uniqueId}" class="form-control" style="flex:0.5">
+                <option value="M">Masculin</option>
+                <option value="F">Féminin</option>
+            </select>
+            <input type="text" name="morbidite_pathologie_${uniqueId}" placeholder="Pathologie" class="form-control" style="flex:2">
+            <input type="number" name="morbidite_nombre_${uniqueId}" placeholder="Nombre" value="0" class="form-control" style="flex:0.5">
+            <button type="button" class="btn-remove" onclick="document.getElementById('morbidite_${uniqueId}').remove()">✖</button>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', html);
+    morbiditeCount++;
+}
+
+// Ajouter une cause de décès
+let decesCount = 0;
+function addCauseDeces() {
+    const container = document.getElementById('deces-container');
+    const uniqueId = Date.now() + decesCount;
+    const html = `
+        <div class="dynamic-row" id="deces_${uniqueId}">
+            <select name="deces_tranche_${uniqueId}" class="form-control" style="flex:1">
+                {% for tranche in tranches_age %}
+                <option value="{{ tranche.0 }}">{{ tranche.1 }}</option>
+                {% endfor %}
+            </select>
+            <select name="deces_sexe_${uniqueId}" class="form-control" style="flex:0.5">
+                <option value="M">Masculin</option>
+                <option value="F">Féminin</option>
+            </select>
+            <input type="text" name="deces_cause_${uniqueId}" placeholder="Cause du décès" class="form-control" style="flex:2">
+            <input type="number" name="deces_nombre_${uniqueId}" placeholder="Nombre" value="0" class="form-control" style="flex:0.5">
+            <button type="button" class="btn-remove" onclick="document.getElementById('deces_${uniqueId}').remove()">✖</button>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', html);
+    decesCount++;
+}
+</script>
+{% endblock %}

@@ -1,0 +1,351 @@
+{# templates/consultations/form_complete.html #}
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Nouveau rapport de consultation{% endblock %}
+{% block page_title %}Nouveau rapport de consultation{% endblock %}
+
+{% block extra_css %}
+<style>
+    .section-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 24px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        border: 1px solid #e9ecef;
+    }
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #0066CC;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #0066CC;
+    }
+    .age-table {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    .age-table th {
+        background: #f8f9fa;
+        padding: 10px;
+        text-align: center;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+    .age-table td {
+        padding: 8px;
+        text-align: center;
+    }
+    .age-table input {
+        width: 80px;
+        text-align: center;
+        padding: 6px;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+    }
+    .dynamic-row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    .dynamic-row input, .dynamic-row select {
+        flex: 1;
+        padding: 8px 12px;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+    }
+    .btn-add {
+        background: #00A86B;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+    .btn-add:hover { background: #008f5a; }
+    .btn-remove {
+        background: #DC3545;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+    .btn-remove:hover { background: #c82333; }
+    .signature-input {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+    }
+    .form-control {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<form method="post" id="consultationForm">
+    {% csrf_token %}
+    
+    <!-- Informations générales -->
+    <div class="section-card">
+        <h4 class="section-title"><i class="fas fa-info-circle"></i> Informations générales</h4>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Service (saisie libre)</label>
+                <input type="text" name="service_nom" class="form-control" placeholder="Ex: Service de Médecine Interne" required>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label">Mois</label>
+                <select name="mois" class="form-control" required>
+                    <option value="1">Janvier</option>
+                    <option value="2">Février</option>
+                    <option value="3">Mars</option>
+                    <option value="4">Avril</option>
+                    <option value="5">Mai</option>
+                    <option value="6">Juin</option>
+                    <option value="7">Juillet</option>
+                    <option value="8">Août</option>
+                    <option value="9">Septembre</option>
+                    <option value="10">Octobre</option>
+                    <option value="11">Novembre</option>
+                    <option value="12">Décembre</option>
+                </select>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label">Année</label>
+                <input type="number" name="annee" class="form-control" value="2025" required>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tableau 1: Activité par tranche d'âge -->
+    <div class="section-card">
+        <h4 class="section-title"><i class="fas fa-chart-line"></i> Tableau 1 : Activité par tranche d'âge et sexe</h4>
+        <div class="table-responsive">
+            <table class="age-table">
+                <thead>
+                    <tr>
+                        <th>Tranche d'âge</th>
+                        <th>Masculin (M)</th>
+                        <th>Féminin (F)</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tranche in tranches_age %}
+                    <tr>
+                        <td><strong>{{ tranche.1 }}</strong></td>
+                        <td>
+                            <input type="number" name="activite_{{ tranche.0 }}_M" value="0" class="activite-input" data-tranche="{{ tranche.0 }}" data-sex="M">
+                        </td>
+                        <td>
+                            <input type="number" name="activite_{{ tranche.0 }}_F" value="0" class="activite-input" data-tranche="{{ tranche.0 }}" data-sex="F">
+                        </td>
+                        <td class="total-cell" id="total_{{ tranche.0 }}">0</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot style="background:#f8f9fa; font-weight:bold;">
+                    <tr>
+                        <td><strong>TOTAL GENERAL</strong></td>
+                        <td id="total_m">0</td>
+                        <td id="total_f">0</td>
+                        <td id="total_general">0</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Provenance des patients -->
+    <div class="section-card">
+        <h4 class="section-title"><i class="fas fa-map-marker-alt"></i> Provenance des patients</h4>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Structure secondaire</label>
+                <input type="number" name="provenance_secondaire" class="form-control" value="0">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Structure tertiaire</label>
+                <input type="number" name="provenance_tertiaire" class="form-control" value="0">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Non référé</label>
+                <input type="number" name="non_refere" class="form-control" value="0">
+            </div>
+        </div>
+    </div>
+    
+    <!-- Assurances -->
+    <div class="section-card">
+        <h4 class="section-title"><i class="fas fa-shield-alt"></i> Assurances</h4>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Patients CMU</label>
+                <input type="number" name="assurance_cmu" class="form-control" value="0">
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Assurance privée</label>
+                <input type="number" name="assurance_privee" class="form-control" value="0">
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tableau 2: Motifs de consultation -->
+    <div class="section-card">
+        <h4 class="section-title"><i class="fas fa-stethoscope"></i> Tableau 2 : Motifs de consultation</h4>
+        <div id="motifs-container"></div>
+        <button type="button" class="btn-add" onclick="addMotif()">
+            <i class="fas fa-plus"></i> Ajouter un motif
+        </button>
+    </div>
+    
+    <!-- Tableau 3: Diagnostics retenus -->
+    <div class="section-card">
+        <h4 class="section-title"><i class="fas fa-diagnoses"></i> Tableau 3 : Diagnostics retenus</h4>
+        <div id="diagnostics-container"></div>
+        <button type="button" class="btn-add" onclick="addDiagnostic()">
+            <i class="fas fa-plus"></i> Ajouter un diagnostic
+        </button>
+    </div>
+    
+    <!-- Signatures -->
+    <div class="section-card">
+        <h4 class="section-title"><i class="fas fa-signature"></i> Signatures</h4>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Coordinateur - Nom</label>
+                <input type="text" name="coordinateur_nom" class="signature-input">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Coordinateur - Prénom</label>
+                <input type="text" name="coordinateur_prenom" class="signature-input">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Surveillant - Nom</label>
+                <input type="text" name="surveillant_nom" class="signature-input">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Surveillant - Prénom</label>
+                <input type="text" name="surveillant_prenom" class="signature-input">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Chef de service - Nom</label>
+                <input type="text" name="chef_service_nom" class="signature-input">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Chef de service - Prénom</label>
+                <input type="text" name="chef_service_prenom" class="signature-input">
+            </div>
+        </div>
+    </div>
+    
+    <!-- Observations -->
+    <div class="section-card">
+        <h4 class="section-title"><i class="fas fa-comment"></i> Observations</h4>
+        <textarea name="observations" class="form-control" rows="3"></textarea>
+    </div>
+    
+    <!-- Boutons -->
+    <div class="text-center mb-5">
+        <button type="submit" name="action" value="save_and_pdf" class="btn-chu btn-chu-primary btn-chu-lg">
+            <i class="fas fa-file-pdf"></i> Générer le rapport PDF
+        </button>
+        <a href="{% url 'consultations:list' %}" class="btn-chu btn-chu-outline btn-chu-lg">
+            <i class="fas fa-times"></i> Annuler
+        </a>
+    </div>
+</form>
+
+<script>
+// Calcul automatique des totaux
+document.querySelectorAll('.activite-input').forEach(input => {
+    input.addEventListener('input', calculateTotals);
+});
+
+function calculateTotals() {
+    let totalM = 0;
+    let totalF = 0;
+    const tranches = ['0-4', '5-9', '10-14', '15-19', '20-24', '25-49', '50+'];
+    
+    tranches.forEach(tranche => {
+        const mVal = parseInt(document.querySelector(`input[name="activite_${tranche}_M"]`)?.value || 0);
+        const fVal = parseInt(document.querySelector(`input[name="activite_${tranche}_F"]`)?.value || 0);
+        const total = mVal + fVal;
+        
+        const totalCell = document.getElementById(`total_${tranche}`);
+        if (totalCell) totalCell.textContent = total;
+        
+        totalM += mVal;
+        totalF += fVal;
+    });
+    
+    document.getElementById('total_m').textContent = totalM;
+    document.getElementById('total_f').textContent = totalF;
+    document.getElementById('total_general').textContent = totalM + totalF;
+}
+
+// Ajouter un motif
+let motifCount = 0;
+function addMotif() {
+    const container = document.getElementById('motifs-container');
+    const uniqueId = Date.now() + motifCount;
+    const html = `
+        <div class="dynamic-row" id="motif_${uniqueId}">
+            <select name="motif_tranche_${uniqueId}" class="form-control" style="flex:1">
+                {% for tranche in tranches_age %}
+                <option value="{{ tranche.0 }}">{{ tranche.1 }}</option>
+                {% endfor %}
+            </select>
+            <select name="motif_sexe_${uniqueId}" class="form-control" style="flex:0.5">
+                <option value="M">Masculin</option>
+                <option value="F">Féminin</option>
+            </select>
+            <input type="text" name="motif_libelle_${uniqueId}" placeholder="Motif" class="form-control" style="flex:2">
+            <input type="number" name="motif_nombre_${uniqueId}" placeholder="Nombre" value="0" class="form-control" style="flex:0.5">
+            <button type="button" class="btn-remove" onclick="document.getElementById('motif_${uniqueId}').remove()">✖</button>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', html);
+    motifCount++;
+}
+
+// Ajouter un diagnostic
+let diagCount = 0;
+function addDiagnostic() {
+    const container = document.getElementById('diagnostics-container');
+    const uniqueId = Date.now() + diagCount;
+    const html = `
+        <div class="dynamic-row" id="diag_${uniqueId}">
+            <select name="diag_tranche_${uniqueId}" class="form-control" style="flex:1">
+                {% for tranche in tranches_age %}
+                <option value="{{ tranche.0 }}">{{ tranche.1 }}</option>
+                {% endfor %}
+            </select>
+            <select name="diag_sexe_${uniqueId}" class="form-control" style="flex:0.5">
+                <option value="M">Masculin</option>
+                <option value="F">Féminin</option>
+            </select>
+            <input type="text" name="diag_code_${uniqueId}" placeholder="Code" class="form-control" style="flex:0.8">
+            <input type="text" name="diag_libelle_${uniqueId}" placeholder="Diagnostic" class="form-control" style="flex:2">
+            <input type="number" name="diag_nombre_${uniqueId}" placeholder="Nombre" value="0" class="form-control" style="flex:0.5">
+            <button type="button" class="btn-remove" onclick="document.getElementById('diag_${uniqueId}').remove()">✖</button>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', html);
+    diagCount++;
+}
+
+calculateTotals();
+</script>
+{% endblock %}

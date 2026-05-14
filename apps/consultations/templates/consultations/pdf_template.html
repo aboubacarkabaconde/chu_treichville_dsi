@@ -1,0 +1,212 @@
+{# templates/consultations/pdf_template.html #}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Rapport Consultation - {{ consultation.periode_str }}</title>
+    <style>
+        @page {
+            size: a4;
+            margin: 2cm;
+        }
+        body {
+            font-family: DejaVu Sans, Helvetica, Arial, sans-serif;
+            font-size: 11pt;
+            color: #333;
+            line-height: 1.4;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #0066CC;
+            padding-bottom: 20px;
+        }
+        .header h1 {
+            color: #0066CC;
+            font-size: 16pt;
+            margin: 0 0 5px 0;
+        }
+        .header h2 {
+            font-size: 12pt;
+            margin: 10px 0 5px 0;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .section-title {
+            background: #0066CC;
+            color: white;
+            padding: 6px 12px;
+            font-size: 11pt;
+            font-weight: bold;
+            margin: 15px 0 10px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        th, td {
+            border: 1px solid #aaa;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background: #f0f0f0;
+            font-weight: bold;
+        }
+        .signatures {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .signature {
+            text-align: center;
+            width: 30%;
+        }
+        .signature hr {
+            margin-top: 30px;
+            border-top: 1px solid #000;
+        }
+        .info-box {
+            background: #f9f9f9;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-left: 3px solid #0066CC;
+        }
+        .text-left { text-align: left; }
+        .font-bold { font-weight: bold; }
+        .mt-4 { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>CENTRE HOSPITALIER UNIVERSITAIRE DE TREICHVILLE</h1>
+        <p>Direction Générale | Direction Médicale et Scientifique | Sous-Direction de l'Information Médicale</p>
+        <h2>RAPPORT MENSUEL DE CONSULTATION</h2>
+        <p><strong>Période :</strong> {{ consultation.periode_str }} | <strong>Service :</strong> {{ consultation.service.nom }}</p>
+    </div>
+    
+    <div class="section">
+        <div class="section-title">Tableau 1 : Activité par tranche d'âge et sexe</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Tranche d'âge</th>
+                    <th>Masculin (M)</th>
+                    <th>Féminin (F)</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tranche in tranches_list %}
+                <tr>
+                    <td><strong>{{ tranches_labels|get_item:tranche }}</strong></td>
+                    <td>{{ activites_dict|get_item:tranche|get_item:'M'|default:'0' }}</td>
+                    <td>{{ activites_dict|get_item:tranche|get_item:'F'|default:'0' }}</td>
+                    <td>{% with m=activites_dict|get_item:tranche|get_item:'M'|default:'0' %}{% with f=activites_dict|get_item:tranche|get_item:'F'|default:'0' %}{{ m|add:f }}{% endwith %}{% endwith %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr style="background:#e6f0ff; font-weight:bold;">
+                    <td>TOTAL GÉNÉRAL</td>
+                    <td>{{ total_m }}</td>
+                    <td>{{ total_f }}</td>
+                    <td>{{ total_general }}</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    
+    <div class="info-box">
+        <span class="font-bold">Provenance des patients :</span><br>
+        Structure secondaire : {{ consultation.provenance_secondaire }} | 
+        Structure tertiaire : {{ consultation.provenance_tertiaire }} | 
+        Non référé : {{ consultation.non_refere }}
+    </div>
+    
+    <div class="info-box">
+        <span class="font-bold">Assurances :</span><br>
+        Patients CMU : {{ consultation.assurance_cmu }} | 
+        Assurance privée : {{ consultation.assurance_privee }}
+    </div>
+    
+    {% if motifs %}
+    <div class="section">
+        <div class="section-title">Tableau 2 : Motifs de consultation</div>
+        <table>
+            <thead>
+                <tr><th>Motif</th><th>Tranche d'âge</th><th>Sexe</th><th>Nombre</th></tr>
+            </thead>
+            <tbody>
+                {% for motif in motifs %}
+                <tr>
+                    <td class="text-left">{{ motif.libelle_motif }}</td>
+                    <td>{{ motif.get_tranche_age_display }}</td>
+                    <td>{{ motif.get_sexe_display }}</td>
+                    <td>{{ motif.nombre }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+    
+    {% if diagnostics %}
+    <div class="section">
+        <div class="section-title">Tableau 3 : Diagnostics retenus</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Diagnostic</th>
+                    <th>Tranche d'âge</th>
+                    <th>Sexe</th>
+                    <th>Nombre</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for diag in diagnostics %}
+                <tr>
+                    <td>{{ diag.code_diagnostic|default:"-" }}</td>
+                    <td class="text-left">{{ diag.libelle_diagnostic }}</td>
+                    <td>{{ diag.get_tranche_age_display }}</td>
+                    <td>{{ diag.get_sexe_display }}</td>
+                    <td>{{ diag.nombre }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+    
+    {% if consultation.observations %}
+    <div class="info-box">
+        <span class="font-bold">Observations :</span><br>
+        {{ consultation.observations }}
+    </div>
+    {% endif %}
+    
+    <div class="signatures">
+        <div class="signature">
+            <strong>Le Coordinateur</strong><br>
+            {{ consultation.coordinateur_prenom }} {{ consultation.coordinateur_nom }}<br>
+            <hr>
+            Date: ________________
+        </div>
+        <div class="signature">
+            <strong>Le Surveillant Chef</strong><br>
+            {{ consultation.surveillant_prenom }} {{ consultation.surveillant_nom }}<br>
+            <hr>
+            Date: ________________
+        </div>
+        <div class="signature">
+            <strong>Le Chef de Service</strong><br>
+            {{ consultation.chef_service_prenom }} {{ consultation.chef_service_nom }}<br>
+            <hr>
+            Date: ________________
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,109 @@
+{# templates/consultations/form.html #}
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="card-chu">
+    <div class="card-chu-header">
+        <h5><i class="fas fa-edit"></i> {{ title }}</h5>
+        <a href="{% url 'consultations:list' %}" class="btn-chu btn-chu-outline btn-chu-sm">
+            <i class="fas fa-arrow-left"></i> Annuler
+        </a>
+    </div>
+    <div class="card-chu-body">
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label-chu">Service</label>
+                    {{ form.service }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label-chu">Mois</label>
+                    {{ form.mois }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label-chu">Année</label>
+                    {{ form.annee }}
+                </div>
+            </div>
+            
+            <hr>
+            <h6 class="mb-3"><i class="fas fa-chart-simple"></i> Provenance des patients</h6>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label-chu">Structure secondaire</label>
+                    {{ form.provenance_secondaire }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label-chu">Structure tertiaire</label>
+                    {{ form.provenance_tertiaire }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label-chu">Non référé</label>
+                    {{ form.non_refere }}
+                </div>
+            </div>
+            
+            <hr>
+            <h6 class="mb-3"><i class="fas fa-shield-alt"></i> Assurances</h6>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label-chu">Patients CMU</label>
+                    {{ form.assurance_cmu }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label-chu">Assurance privée</label>
+                    {{ form.assurance_privee }}
+                </div>
+            </div>
+            
+            <hr>
+            <h6 class="mb-3"><i class="fas fa-signature"></i> Signatures</h6>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label-chu">Coordinateur - Nom</label>
+                    {{ form.coordinateur_nom }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label-chu">Coordinateur - Prénom</label>
+                    {{ form.coordinateur_prenom }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label-chu">Surveillant - Nom</label>
+                    {{ form.surveillant_nom }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label-chu">Surveillant - Prénom</label>
+                    {{ form.surveillant_prenom }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label-chu">Chef service - Nom</label>
+                    {{ form.chef_service_nom }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label-chu">Chef service - Prénom</label>
+                    {{ form.chef_service_prenom }}
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label-chu">Observations</label>
+                {{ form.observations }}
+            </div>
+            
+            <div class="mt-4">
+                <button type="submit" class="btn-chu btn-chu-primary">
+                    <i class="fas fa-save"></i> Enregistrer
+                </button>
+                <a href="{% url 'consultations:list' %}" class="btn-chu btn-chu-outline">
+                    <i class="fas fa-times"></i> Annuler
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,199 @@
+﻿{# templates/core/dashboard.html #}
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Tableau de bord{% endblock %}
+{% block page_title %}Tableau de bord{% endblock %}
+
+{% block content %}
+<!-- Statistiques -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card-chu">
+            <div class="card-chu-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-muted small text-uppercase">Total rapports</span>
+                        <h2 class="mt-2 mb-0">{{ total_rapports }}</h2>
+                    </div>
+                    <div class="bg-primary-light rounded-circle p-3">
+                        <i class="fas fa-file-alt fa-2x text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card-chu">
+            <div class="card-chu-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-muted small text-uppercase">Consultations</span>
+                        <h2 class="mt-2 mb-0">{{ total_consultations }}</h2>
+                    </div>
+                    <div class="bg-success-light rounded-circle p-3">
+                        <i class="fas fa-notes-medical fa-2x text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card-chu">
+            <div class="card-chu-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-muted small text-uppercase">Urgences</span>
+                        <h2 class="mt-2 mb-0">{{ total_urgences }}</h2>
+                    </div>
+                    <div class="bg-danger-light rounded-circle p-3">
+                        <i class="fas fa-ambulance fa-2x text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card-chu">
+            <div class="card-chu-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-muted small text-uppercase">Services actifs</span>
+                        <h2 class="mt-2 mb-0">{{ total_services }}</h2>
+                    </div>
+                    <div class="bg-warning-light rounded-circle p-3">
+                        <i class="fas fa-building fa-2x text-warning"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Actions rapides -->
+<div class="card-chu">
+    <div class="card-chu-header">
+        <h5><i class="fas fa-bolt"></i> Actions rapides</h5>
+    </div>
+    <div class="card-chu-body">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <a href="{% url 'consultations:create_complete' %}" class="btn-chu btn-chu-primary w-100 py-3">
+                    <i class="fas fa-plus"></i> Nouveau rapport de consultation
+                </a>
+            </div>
+            <div class="col-md-6">
+                <a href="{% url 'urgences:create_complete' %}" class="btn-chu btn-chu-primary w-100 py-3">
+                    <i class="fas fa-plus"></i> Nouveau rapport des urgences
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Derniers rapports -->
+<div class="card-chu mt-4">
+    <div class="card-chu-header">
+        <h5><i class="fas fa-history"></i> Derniers rapports</h5>
+        <a href="{% url 'core:rapports_list' %}" class="btn-chu btn-chu-outline btn-chu-sm">
+            Voir tous <i class="fas fa-arrow-right ms-1"></i>
+        </a>
+    </div>
+    <div class="card-chu-body">
+        {% if derniers_rapports %}
+        <div class="table-responsive">
+            <table class="table-chu">
+                <thead>
+                    <tr>
+                        <th>TYPE</th>
+                        <th>SERVICE</th>
+                        <th>PÉRIODE</th>
+                        <th>STATUT</th>
+                        <th>CRÉÉ LE</th>
+                        <th>ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rapport in derniers_rapports %}
+                    <tr>
+                        <td>
+                            <span class="badge-chu badge-{{ rapport.type_color }}">
+                                <i class="fas {{ rapport.type_icon }}"></i> {{ rapport.type_label }}
+                            </span>
+                        </td>
+                        <td>{{ rapport.service_display|default:"-" }}</td>
+                        <td>{{ rapport.periode_str }}</td>
+                        <td>
+                            {% with statut_info=rapport.get_statut_badge %}
+                            <span class="badge-chu badge-{{ statut_info.0 }}">
+                                <i class="fas {{ statut_info.1 }}"></i> {{ statut_info.2 }}
+                            </span>
+                            {% endwith %}
+                        </td>
+                        <td>{{ rapport.created_at|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                {% if rapport.type_rapport == 'consultation' %}
+                                <a href="{% url 'consultations:pdf' rapport.pk %}" class="btn-chu btn-chu-primary btn-chu-sm" target="_blank" title="PDF">
+                                    <i class="fas fa-file-pdf"></i>
+                                </a>
+                                <form method="post" action="{% url 'core:update_statut' rapport.pk 'consultation' %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <select name="statut" class="form-select form-select-sm" style="width: 120px; font-size: 0.7rem;" onchange="this.form.submit()">
+                                        <option value="brouillon" {% if rapport.statut == 'brouillon' %}selected{% endif %}>Brouillon</option>
+                                        <option value="termine" {% if rapport.statut == 'termine' %}selected{% endif %}>Terminé</option>
+                                        <option value="valide" {% if rapport.statut == 'valide' %}selected{% endif %}>Validé</option>
+                                        <option value="en_ligne" {% if rapport.statut == 'en_ligne' %}selected{% endif %}>En ligne</option>
+                                    </select>
+                                </form>
+                                {% else %}
+                                <a href="{% url 'urgences:pdf' rapport.pk %}" class="btn-chu btn-chu-primary btn-chu-sm" target="_blank" title="PDF">
+                                    <i class="fas fa-file-pdf"></i>
+                                </a>
+                                <form method="post" action="{% url 'core:update_statut' rapport.pk 'urgence' %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <select name="statut" class="form-select form-select-sm" style="width: 120px; font-size: 0.7rem;" onchange="this.form.submit()">
+                                        <option value="brouillon" {% if rapport.statut == 'brouillon' %}selected{% endif %}>Brouillon</option>
+                                        <option value="termine" {% if rapport.statut == 'termine' %}selected{% endif %}>Terminé</option>
+                                        <option value="valide" {% if rapport.statut == 'valide' %}selected{% endif %}>Validé</option>
+                                        <option value="en_ligne" {% if rapport.statut == 'en_ligne' %}selected{% endif %}>En ligne</option>
+                                    </select>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-inbox fa-3x text-muted"></i>
+            <h5 class="mt-3">Aucun rapport récent</h5>
+            <p class="text-muted">Commencez par créer votre premier rapport</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .badge-success { background: #E6FFF5; color: #00A86B; }
+    .badge-primary { background: #E6F0FF; color: #0066CC; }
+    .badge-danger { background: #FFF0F2; color: #DC3545; }
+    .badge-warning { background: #FFF8E6; color: #FFC107; }
+    .badge-info { background: #E6FAFD; color: #00BCD4; }
+    .badge-secondary { background: #E9ECEF; color: #6C757D; }
+    .form-select-sm {
+        padding: 0.25rem 1.5rem 0.25rem 0.5rem;
+        font-size: 0.7rem;
+        border-radius: 6px;
+        border: 1px solid #dee2e6;
+        background-color: white;
+        cursor: pointer;
+    }
+    .form-select-sm:hover {
+        border-color: #0066CC;
+    }
+</style>
+{% endblock %}

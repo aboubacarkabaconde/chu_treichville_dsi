@@ -1,0 +1,72 @@
+{# templates/urgences/list.html #}
+{% extends 'base.html' %}
+
+{% block title %}Rapports des urgences{% endblock %}
+{% block page_title %}Rapports des urgences{% endblock %}
+
+{% block content %}
+<div class="card-chu">
+    <div class="card-chu-header">
+        <h5><i class="fas fa-ambulance"></i> Liste des rapports des urgences</h5>
+        <a href="{% url 'urgences:create_complete' %}" class="btn-chu btn-chu-primary btn-chu-sm">
+            <i class="fas fa-plus"></i> Nouveau rapport
+        </a>
+    </div>
+    <div class="card-chu-body">
+        {% if rapports %}
+        <div class="table-responsive">
+            <table class="table-chu">
+                <thead>
+                    <tr>
+                        <th>Service</th>
+                        <th>Période</th>
+                        <th>Statut</th>
+                        <th>Taux occupation</th>
+                        <th>Créé par</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rapport in rapports %}
+                    <tr>
+                        <td>{{ rapport.service_nom }}</td>
+                        <td>{{ rapport.periode_str }}</td>
+                        <td>
+                            <span class="badge-chu {% if rapport.statut == 'valide' %}badge-success{% elif rapport.statut == 'soumis' %}badge-warning{% else %}badge-secondary{% endif %}">
+                                <i class="fas {% if rapport.statut == 'valide' %}fa-check-circle{% elif rapport.statut == 'soumis' %}fa-clock{% else %}fa-pen{% endif %}"></i>
+                                {{ rapport.get_statut_display }}
+                            </span>
+                        </td>
+                        <td><strong>{{ rapport.taux_occupation|floatformat:1 }}%</strong></td>
+                        <td>{{ rapport.created_by.username }}</td>
+                        <td>{{ rapport.created_at|date:"d/m/Y" }}</td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'urgences:pdf' rapport.pk %}" class="btn-chu btn-chu-primary btn-chu-sm" target="_blank">
+                                    <i class="fas fa-file-pdf"></i> PDF
+                                </a>
+                                <a href="{% url 'urgences:delete' rapport.pk %}" class="btn-chu btn-chu-danger btn-chu-sm" 
+                                   onclick="return confirm('Supprimer ce rapport ?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-ambulance fa-4x"></i>
+            <h5>Aucun rapport</h5>
+            <p>Commencez par créer votre premier rapport des urgences</p>
+            <a href="{% url 'urgences:create_complete' %}" class="btn-chu btn-chu-primary">
+                <i class="fas fa-plus"></i> Nouveau rapport
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

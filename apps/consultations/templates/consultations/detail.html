@@ -1,0 +1,71 @@
+{# templates/consultations/detail.html #}
+{% extends 'base.html' %}
+
+{% block title %}Rapport consultation - {{ consultation.periode_str }}{% endblock %}
+{% block page_title %}Rapport de consultation{% endblock %}
+
+{% block content %}
+<div class="no-print mb-3">
+    <a href="{% url 'consultations:list' %}" class="btn-chu btn-chu-outline btn-chu-sm">
+        <i class="fas fa-arrow-left"></i> Retour
+    </a>
+    <button onclick="window.print()" class="btn-chu btn-chu-primary btn-chu-sm float-end">
+        <i class="fas fa-print"></i> Imprimer
+    </button>
+</div>
+
+<div class="card-chu">
+    <div class="card-chu-body">
+        <div class="text-center mb-4">
+            <h3>CENTRE HOSPITALIER UNIVERSITAIRE DE TREICHVILLE</h3>
+            <p>Direction Générale | Direction Médicale et Scientifique | Sous-Direction de l'Information Médicale</p>
+            <h4>RAPPORT MENSUEL DE CONSULTATION</h4>
+            <p><strong>Période : {{ consultation.periode_str }}</strong></p>
+            <p><strong>Service : {{ consultation.service.nom }}</strong></p>
+        </div>
+
+        <div class="alert alert-info">
+            <strong>Informations :</strong><br>
+            - Provenance secondaire : {{ consultation.provenance_secondaire }}<br>
+            - Provenance tertiaire : {{ consultation.provenance_tertiaire }}<br>
+            - Non référé : {{ consultation.non_refere }}<br>
+            - Assurance CMU : {{ consultation.assurance_cmu }}<br>
+            - Assurance privée : {{ consultation.assurance_privee }}
+        </div>
+
+        {% if consultation.observations %}
+        <div class="alert alert-warning">
+            <strong>Observations :</strong> {{ consultation.observations }}
+        </div>
+        {% endif %}
+
+        <div class="signature-line mt-5 pt-3">
+            <div class="row">
+                <div class="col-4 text-center">
+                    <p><strong>Le Coordinateur</strong></p>
+                    <p>{{ consultation.coordinateur_prenom }} {{ consultation.coordinateur_nom }}</p>
+                    <hr>
+                </div>
+                <div class="col-4 text-center">
+                    <p><strong>Le Surveillant Chef</strong></p>
+                    <p>{{ consultation.surveillant_prenom }} {{ consultation.surveillant_nom }}</p>
+                    <hr>
+                </div>
+                <div class="col-4 text-center">
+                    <p><strong>Le Chef de Service</strong></p>
+                    <p>{{ consultation.chef_service_prenom }} {{ consultation.chef_service_nom }}</p>
+                    <hr>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@media print {
+    .no-print { display: none; }
+    .btn-chu { display: none; }
+    .card-chu { border: none; }
+}
+</style>
+{% endblock %}

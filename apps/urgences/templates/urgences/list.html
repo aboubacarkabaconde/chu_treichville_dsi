@@ -1,0 +1,26 @@
+{# templates/urgences/list.html #}
+{% extends 'base.html' %}
+
+{% block title %}Liste des rapports des urgences{% endblock %}
+{% block page_title %}Rapports des urgences{% endblock %}
+
+{% block content %}
+<div class="card-chu">
+    <div class="card-chu-header">
+        <h5><i class="fas fa-ambulance"></i> Liste des rapports des urgences</h5>
+        <a href="{% url 'urgences:create' %}" class="btn-chu btn-chu-primary btn-chu-sm">
+            <i class="fas fa-plus"></i> Nouveau rapport
+        </a>
+    </div>
+    <div class="card-chu-body">
+        <div class="empty-state">
+            <i class="fas fa-chart-line"></i>
+            <h5>Module en construction</h5>
+            <p>Les rapports des urgences seront disponibles prochainement</p>
+            <a href="{% url 'core:dashboard' %}" class="btn-chu btn-chu-primary">
+                <i class="fas fa-home"></i> Retour au tableau de bord
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
