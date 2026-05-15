@@ -1,0 +1,73 @@
+{# templates/accouchements/list.html #}
+{% extends 'base.html' %}
+
+{% block title %}Rapports d'accouchements{% endblock %}
+
+{% block page_title %}Rapports d'accouchements{% endblock %}
+
+{% block content %}
+<div class="card-chu">
+    <div class="card-chu-header">
+        <h5><i class="fas fa-baby-carriage"></i> Liste des rapports d'accouchements</h5>
+        <a href="{% url 'accouchements:create' %}" class="btn-chu btn-chu-primary btn-chu-sm">
+            <i class="fas fa-plus"></i> Nouveau rapport
+        </a>
+    </div>
+    <div class="card-chu-body">
+        {% if rapports %}
+        <div class="table-responsive">
+            <table class="table-chu">
+                <thead>
+                    <tr>
+                        <th>Service</th>
+                        <th>Période</th>
+                        <th>Statut</th>
+                        <th>Total accouchements</th>
+                        <th>Naissances vivantes</th>
+                        <th>Créé par</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rapport in rapports %}
+                    <tr>
+                        <td>{{ rapport.service_nom }}</td>
+                        <td>{{ rapport.periode_str }}</td>
+                        <td>
+                            <span class="badge-chu badge-secondary">{{ rapport.get_statut_display }}</span>
+                        </td>
+                        <td><strong>{{ rapport.total_accouchements_global }}</strong></td>
+                        <td>{{ rapport.naissances_vivantes }}</td>
+                        <td>{{ rapport.created_by.username }}</td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'accouchements:pdf' rapport.pk %}" class="btn-chu btn-chu-primary btn-chu-sm" target="_blank">
+                                    <i class="fas fa-file-pdf"></i> PDF
+                                </a>
+                                <a href="{% url 'accouchements:detail' rapport.pk %}" class="btn-chu btn-chu-outline btn-chu-sm">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'accouchements:delete' rapport.pk %}" class="btn-chu btn-chu-danger btn-chu-sm" 
+                                   onclick="return confirm('Supprimer ce rapport ?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-baby-carriage fa-4x"></i>
+            <h5>Aucun rapport</h5>
+            <p>Commencez par créer votre premier rapport d'accouchements</p>
+            <a href="{% url 'accouchements:create' %}" class="btn-chu btn-chu-primary">
+                <i class="fas fa-plus"></i> Nouveau rapport
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

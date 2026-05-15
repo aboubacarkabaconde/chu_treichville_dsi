@@ -19,6 +19,8 @@ INSTALLED_APPS = [
     'apps.core.apps.CoreConfig',
     'apps.consultations.apps.ConsultationsConfig',  # ← Doit être présent
     'apps.urgences.apps.UrgencesConfig', 
+    'apps.accouchements.apps.AccouchementsConfig',  # ← Doit être présent
+    'apps.cpn.apps.CpnConfig',  # ← Ajoute cette ligne
 ]
 
 MIDDLEWARE = [

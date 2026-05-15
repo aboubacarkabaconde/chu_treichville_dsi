@@ -1,5 +1,7 @@
-from django.apps import AppConfig
+﻿from django.apps import AppConfig
 
 
 class CpnConfig(AppConfig):
-    name = 'cpn'
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'apps.cpn'
+    verbose_name = 'Consultations Prénatales'

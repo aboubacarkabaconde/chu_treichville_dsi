@@ -1,0 +1,100 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Rapport CPN - {{ cpn.periode_str }}{% endblock %}
+{% block page_title %}Rapport des Consultations Prénatales{% endblock %}
+
+{% block content %}
+<div class="no-print mb-3">
+    <a href="{% url 'cpn:list' %}" class="btn-chu btn-chu-outline btn-chu-sm">
+        <i class="fas fa-arrow-left"></i> Retour
+    </a>
+    <a href="{% url 'cpn:pdf' cpn.pk %}" class="btn-chu btn-chu-primary btn-chu-sm float-end" target="_blank">
+        <i class="fas fa-file-pdf"></i> Télécharger PDF
+    </a>
+</div>
+
+<div class="card-chu">
+    <div class="card-chu-body">
+        <div class="text-center mb-4">
+            <h3>CENTRE HOSPITALIER UNIVERSITAIRE DE TREICHVILLE</h3>
+            <p>Direction Générale | Direction Médicale et Scientifique | Sous-Direction de l'Information Médicale</p>
+            <h4>RAPPORT DES CONSULTATIONS PRÉNATALES (CPN)</h4>
+            <p><strong>Période : {{ cpn.periode_str }}</strong></p>
+            <p><strong>Service : {{ cpn.service_nom }}</strong></p>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                <div class="alert alert-info">
+                    <h6 class="text-center">Consultations Prénatales</h6>
+                    <table class="table table-bordered text-center">
+                        <tr>
+                            <th>1ère CPN</th>
+                            <th>2ème CPN</th>
+                            <th>3ème CPN</th>
+                            <th>4ème CPN</th>
+                            <th>5ème CPN+</th>
+                            <th>TOTAL CPN</th>
+                        </tr>
+                        <tr>
+                            <td>{{ cpn.cpn1 }}</td><td>{{ cpn.cpn2 }}</td><td>{{ cpn.cpn3 }}</td>
+                            <td>{{ cpn.cpn4 }}</td><td>{{ cpn.cpn5_plus }}</td>
+                            <td><strong>{{ cpn.total_cpn }}</strong>
+                        </td>
+                    </table>
+                </div>
+                
+                <div class="alert alert-success">
+                    <h6 class="text-center">Consultations Postnatales</h6>
+                    <table class="table table-bordered text-center">
+                        <tr><th>Nombre</th></tr>
+                        <td>{{ cpn.consultations_postnatales }}</td>
+                    </table>
+                </div>
+                
+                <div class="alert alert-primary">
+                    <h6 class="text-center">Récapitulatif</h6>
+                    <table class="table table-bordered text-center">
+                        <tr><th>Total CPN</th><th>Postnatales</th><th>Total général</th></tr>
+                        <tr>
+                            <td><strong>{{ cpn.total_cpn }}</strong></td>
+                            <td><strong>{{ cpn.consultations_postnatales }}</strong></td>
+                            <td><strong class="text-success">{{ cpn.total_consultations }}</strong></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        {% if cpn.observations %}
+        <div class="alert alert-warning mt-3">
+            <strong>Observations :</strong> {{ cpn.observations }}
+        </div>
+        {% endif %}
+
+        <div class="row mt-5 pt-3">
+            <div class="col-4 text-center">
+                <p><strong>Le Coordinateur</strong></p>
+                <p>{{ cpn.coordinateur_prenom }} {{ cpn.coordinateur_nom }}</p>
+                <hr>
+            </div>
+            <div class="col-4 text-center">
+                <p><strong>Le Surveillant Chef</strong></p>
+                <p>{{ cpn.surveillant_prenom }} {{ cpn.surveillant_nom }}</p>
+                <hr>
+            </div>
+            <div class="col-4 text-center">
+                <p><strong>Le Chef de Service</strong></p>
+                <p>{{ cpn.chef_service_prenom }} {{ cpn.chef_service_nom }}</p>
+                <hr>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@media print {
+    .no-print { display: none; }
+}
+</style>
+{% endblock %}

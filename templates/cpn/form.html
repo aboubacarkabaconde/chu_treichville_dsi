@@ -1,0 +1,130 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Nouveau rapport CPN{% endblock %}
+{% block page_title %}Nouveau rapport CPN{% endblock %}
+
+{% block content %}
+<div class="card-chu">
+    <div class="card-chu-header">
+        <h5><i class="fas fa-female"></i> Créer un nouveau rapport CPN</h5>
+        <a href="{% url 'cpn:list' %}" class="btn-chu btn-chu-outline btn-chu-sm">
+            <i class="fas fa-arrow-left"></i> Retour
+        </a>
+    </div>
+    <div class="card-chu-body">
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <label class="form-label">Service (saisie libre)</label>
+                    <input type="text" name="service_nom" class="form-control" value="Service de Gynécologie-Obstétrique" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Mois</label>
+                    <select name="mois" class="form-control" required>
+                        <option value="1">Janvier</option>
+                        <option value="2">Février</option>
+                        <option value="3">Mars</option>
+                        <option value="4">Avril</option>
+                        <option value="5">Mai</option>
+                        <option value="6">Juin</option>
+                        <option value="7">Juillet</option>
+                        <option value="8">Août</option>
+                        <option value="9">Septembre</option>
+                        <option value="10">Octobre</option>
+                        <option value="11">Novembre</option>
+                        <option value="12">Décembre</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Année</label>
+                    <input type="number" name="annee" class="form-control" value="2025" required>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0">Consultations Prénatales (CPN)</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label">1ère CPN</label>
+                            <input type="number" name="cpn1" class="form-control" value="0">
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label">2ème CPN</label>
+                            <input type="number" name="cpn2" class="form-control" value="0">
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label">3ème CPN</label>
+                            <input type="number" name="cpn3" class="form-control" value="0">
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label">4ème CPN</label>
+                            <input type="number" name="cpn4" class="form-control" value="0">
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label">5ème CPN et +</label>
+                            <input type="number" name="cpn5_plus" class="form-control" value="0">
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label">Consultations postnatales</label>
+                            <input type="number" name="consultations_postnatales" class="form-control" value="0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">Signatures</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label">Coordinateur - Nom</label>
+                            <input type="text" name="coordinateur_nom" class="form-control">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label">Coordinateur - Prénom</label>
+                            <input type="text" name="coordinateur_prenom" class="form-control">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label">Surveillant - Nom</label>
+                            <input type="text" name="surveillant_nom" class="form-control">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label">Surveillant - Prénom</label>
+                            <input type="text" name="surveillant_prenom" class="form-control">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label">Chef de service - Nom</label>
+                            <input type="text" name="chef_service_nom" class="form-control">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label">Chef de service - Prénom</label>
+                            <input type="text" name="chef_service_prenom" class="form-control">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Observations</label>
+                <textarea name="observations" class="form-control" rows="3"></textarea>
+            </div>
+
+            <div class="text-center mt-4">
+                <button type="submit" class="btn-chu btn-chu-primary btn-chu-lg">
+                    <i class="fas fa-save"></i> Créer le rapport
+                </button>
+                <a href="{% url 'cpn:list' %}" class="btn-chu btn-chu-outline btn-chu-lg">
+                    <i class="fas fa-times"></i> Annuler
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

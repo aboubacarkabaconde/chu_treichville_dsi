@@ -1,0 +1,172 @@
+{# templates/accouchements/form.html #}
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if accouchement %}Modifier{% else %}Nouveau{% endif %} rapport d'accouchements{% endblock %}
+
+{% block page_title %}{% if accouchement %}Modifier{% else %}Nouveau{% endif %} rapport d'accouchements{% endblock %}
+
+{% block content %}
+<div class="card-chu">
+    <div class="card-chu-header">
+        <h5><i class="fas fa-baby-carriage"></i> {% if accouchement %}Modifier le rapport{% else %}Créer un nouveau rapport{% endif %}</h5>
+        <a href="{% url 'accouchements:list' %}" class="btn-chu btn-chu-outline btn-chu-sm">
+            <i class="fas fa-arrow-left"></i> Retour
+        </a>
+    </div>
+    <div class="card-chu-body">
+        <form method="post">
+            {% csrf_token %}
+            
+            <!-- Informations générales -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <label class="form-label">Service (saisie libre)</label>
+                    <input type="text" name="service_nom" class="form-control" value="{{ accouchement.service_nom|default:'' }}" placeholder="Ex: Service de Gynécologie-Obstétrique" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Mois</label>
+                    <select name="mois" class="form-control" required>
+                        <option value="1" {% if accouchement.mois == 1 %}selected{% endif %}>Janvier</option>
+                        <option value="2" {% if accouchement.mois == 2 %}selected{% endif %}>Février</option>
+                        <option value="3" {% if accouchement.mois == 3 %}selected{% endif %}>Mars</option>
+                        <option value="4" {% if accouchement.mois == 4 %}selected{% endif %}>Avril</option>
+                        <option value="5" {% if accouchement.mois == 5 %}selected{% endif %}>Mai</option>
+                        <option value="6" {% if accouchement.mois == 6 %}selected{% endif %}>Juin</option>
+                        <option value="7" {% if accouchement.mois == 7 %}selected{% endif %}>Juillet</option>
+                        <option value="8" {% if accouchement.mois == 8 %}selected{% endif %}>Août</option>
+                        <option value="9" {% if accouchement.mois == 9 %}selected{% endif %}>Septembre</option>
+                        <option value="10" {% if accouchement.mois == 10 %}selected{% endif %}>Octobre</option>
+                        <option value="11" {% if accouchement.mois == 11 %}selected{% endif %}>Novembre</option>
+                        <option value="12" {% if accouchement.mois == 12 %}selected{% endif %}>Décembre</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Année</label>
+                    <input type="number" name="annee" class="form-control" value="{{ accouchement.annee|default:2025 }}" required>
+                </div>
+            </div>
+            
+            <!-- Types d'accouchements -->
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0"><i class="fas fa-hospital"></i> Types d'accouchements</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label">À domicile</label>
+                            <input type="number" name="accouchements_domicile" class="form-control" value="{{ accouchement.accouchements_domicile|default:0 }}">
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label">Normal (voie basse)</label>
+                            <input type="number" name="accouchements_normal" class="form-control" value="{{ accouchement.accouchements_normal|default:0 }}">
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label">Césarienne</label>
+                            <input type="number" name="accouchements_cesarienne" class="form-control" value="{{ accouchement.accouchements_cesarienne|default:0 }}">
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label">Autres</label>
+                            <input type="number" name="autres_accouchements" class="form-control" value="{{ accouchement.autres_accouchements|default:0 }}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Issues -->
+            <div class="card mb-3">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0"><i class="fas fa-chart-line"></i> Issues</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label">Mort-nés</label>
+                            <input type="number" name="mort_nes" class="form-control" value="{{ accouchement.mort_nes|default:0 }}">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label">Naissances vivantes</label>
+                            <input type="number" name="naissances_vivantes" class="form-control" value="{{ accouchement.naissances_vivantes|default:0 }}">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label">Hypotrophie (poids < 2500g)</label>
+                            <input type="number" name="hypotrophie" class="form-control" value="{{ accouchement.hypotrophie|default:0 }}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Décès -->
+            <div class="card mb-3">
+                <div class="card-header bg-danger text-white">
+                    <h6 class="mb-0"><i class="fas fa-heartbeat"></i> Décès</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label">Décès maternel</label>
+                            <input type="number" name="deces_maternel" class="form-control" value="{{ accouchement.deces_maternel|default:0 }}">
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label">Décès néonatal</label>
+                            <input type="number" name="deces_neonatal" class="form-control" value="{{ accouchement.deces_neonatal|default:0 }}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Signatures -->
+            <div class="card mb-3">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0"><i class="fas fa-signature"></i> Signatures</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label">Coordinateur - Nom</label>
+                            <input type="text" name="coordinateur_nom" class="form-control" value="{{ accouchement.coordinateur_nom|default:'' }}">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label">Coordinateur - Prénom</label>
+                            <input type="text" name="coordinateur_prenom" class="form-control" value="{{ accouchement.coordinateur_prenom|default:'' }}">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label">Surveillant - Nom</label>
+                            <input type="text" name="surveillant_nom" class="form-control" value="{{ accouchement.surveillant_nom|default:'' }}">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label">Surveillant - Prénom</label>
+                            <input type="text" name="surveillant_prenom" class="form-control" value="{{ accouchement.surveillant_prenom|default:'' }}">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label">Chef de service - Nom</label>
+                            <input type="text" name="chef_service_nom" class="form-control" value="{{ accouchement.chef_service_nom|default:'' }}">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label">Chef de service - Prénom</label>
+                            <input type="text" name="chef_service_prenom" class="form-control" value="{{ accouchement.chef_service_prenom|default:'' }}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Observations -->
+            <div class="mb-3">
+                <label class="form-label">Observations</label>
+                <textarea name="observations" class="form-control" rows="3">{{ accouchement.observations|default:'' }}</textarea>
+            </div>
+            
+            <!-- Boutons -->
+            <div class="text-center mt-4">
+                <button type="submit" class="btn-chu btn-chu-primary btn-chu-lg">
+                    <i class="fas fa-save"></i> {% if accouchement %}Enregistrer les modifications{% else %}Créer le rapport{% endif %}
+                </button>
+                <a href="{% url 'accouchements:list' %}" class="btn-chu btn-chu-outline btn-chu-lg">
+                    <i class="fas fa-times"></i> Annuler
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

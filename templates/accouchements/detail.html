@@ -1,0 +1,91 @@
+{# templates/accouchements/detail.html #}
+{% extends 'base.html' %}
+
+{% block title %}Rapport d'accouchements - {{ accouchement.periode_str }}{% endblock %}
+{% block page_title %}Rapport d'accouchements{% endblock %}
+
+{% block content %}
+<div class="no-print mb-3">
+    <a href="{% url 'accouchements:list' %}" class="btn-chu btn-chu-outline btn-chu-sm">
+        <i class="fas fa-arrow-left"></i> Retour
+    </a>
+    <a href="{% url 'accouchements:pdf' accouchement.pk %}" class="btn-chu btn-chu-primary btn-chu-sm float-end" target="_blank">
+        <i class="fas fa-file-pdf"></i> Télécharger PDF
+    </a>
+</div>
+
+<div class="card-chu">
+    <div class="card-chu-body">
+        <div class="text-center mb-4">
+            <h3>CENTRE HOSPITALIER UNIVERSITAIRE DE TREICHVILLE</h3>
+            <p>Direction Générale | Direction Médicale et Scientifique | Sous-Direction de l'Information Médicale</p>
+            <h4>RAPPORT DES ACCOUCHEMENTS</h4>
+            <p><strong>Période : {{ accouchement.periode_str }}</strong></p>
+            <p><strong>Service : {{ accouchement.service_nom }}</strong></p>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="alert alert-info">
+                    <h6>Types d'accouchements</h6>
+                    <table class="table table-sm">
+                        <tr><th>À domicile</th><td>{{ accouchement.accouchements_domicile }}</td></tr>
+                        <tr><th>Normal (voie basse)</th><td>{{ accouchement.accouchements_normal }}</td></tr>
+                        <tr><th>Césarienne</th><td>{{ accouchement.accouchements_cesarienne }}</td></tr>
+                        <tr><th>Autres</th><td>{{ accouchement.autres_accouchements }}</td></tr>
+                        <tr><th><strong>Total établissement</strong></th><td><strong>{{ accouchement.total_accouchements }}</strong></td></tr>
+                        <tr><th><strong>Total général</strong></th><td><strong>{{ accouchement.total_accouchements_global }}</strong></td></tr>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="alert alert-success">
+                    <h6>Issues</h6>
+                    <table class="table table-sm">
+                        <tr><th>Mort-nés</th><td>{{ accouchement.mort_nes }}</td></tr>
+                        <tr><th>Naissances vivantes</th><td>{{ accouchement.naissances_vivantes }}</td></tr>
+                        <tr><th>Hypotrophie (poids < 2500g)</th><td>{{ accouchement.hypotrophie }}</td></tr>
+                    </table>
+                </div>
+                <div class="alert alert-danger">
+                    <h6>Décès</h6>
+                    <table class="table table-sm">
+                        <tr><th>Décès maternel</th><td>{{ accouchement.deces_maternel }}</td></tr>
+                        <tr><th>Décès néonatal</th><td>{{ accouchement.deces_neonatal }}</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        {% if accouchement.observations %}
+        <div class="alert alert-warning">
+            <strong>Observations :</strong> {{ accouchement.observations }}
+        </div>
+        {% endif %}
+
+        <div class="row mt-5 pt-3">
+            <div class="col-4 text-center">
+                <p><strong>Le Coordinateur</strong></p>
+                <p>{{ accouchement.coordinateur_prenom }} {{ accouchement.coordinateur_nom }}</p>
+                <hr>
+            </div>
+            <div class="col-4 text-center">
+                <p><strong>Le Surveillant Chef</strong></p>
+                <p>{{ accouchement.surveillant_prenom }} {{ accouchement.surveillant_nom }}</p>
+                <hr>
+            </div>
+            <div class="col-4 text-center">
+                <p><strong>Le Chef de Service</strong></p>
+                <p>{{ accouchement.chef_service_prenom }} {{ accouchement.chef_service_nom }}</p>
+                <hr>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@media print {
+    .no-print { display: none; }
+}
+</style>
+{% endblock %}

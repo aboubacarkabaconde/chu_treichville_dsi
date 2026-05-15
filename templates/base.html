@@ -427,7 +427,17 @@
                             <i class="fas fa-ambulance"></i> Urgences
                         </a>
                     </div>
-                    
+                    <div class="menu-item">
+                        <a href="{% url 'accouchements:list' %}" class="menu-link" data-url="accouchements">
+                            <i class="fas fa-baby-carriage"></i> Accouchements
+                        </a>
+                    </div>
+                    <div class="menu-item">
+                        <a href="{% url 'cpn:list' %}" class="menu-link">
+                            <i class="fas fa-female"></i> CPN
+                        </a>
+                    </div>
+                                        
                     <!-- DÉCONNEXION -->
                     <div class="logout-container">
                         <form method="post" action="{% url 'core:logout' %}">
